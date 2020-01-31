@@ -3,7 +3,7 @@ import { withFormik, Form, Field} from "formik";
 import * as Yup from "yup";
 import User from './User'
 
-const UserForm = ({values, errors, touched, isSubmitting}) => {
+const UserForm = ({values, errors, touched, isSubmitting, resetForm}) => {
     let [users, setUsers] = useState([]);
     const handleData = (event) => {
         event.preventDefault();
@@ -17,24 +17,26 @@ const UserForm = ({values, errors, touched, isSubmitting}) => {
             })
                 .then(res => res.json())
                     .then(data => {
-                        //console.log(data);
                         setUsers(users.concat([data]));
+                        resetForm();
                     });
         } else {
-            console.log('You need to read the Terms of Service first.');
+            alert('You need to read the Terms of Service first.');
         }
     }
     return (
-        <Form onSubmit={(event) => handleData(event)}>
+        <Form onSubmit={(event) => {
+                handleData(event);
+            }}>
             <p>{users.length ? users.map(user => <User name={user.name} email={user.email}/>) : null}</p>
             {touched.name && errors.name && <p>{errors.name}</p>}
-            <Field type='text' name='name' placeholder='Name' />
+            <Field type='text' name='name' placeholder='Name'/>
             <br/>
             {touched.email && errors.email && <p>{errors.email}</p>}
-            <Field type='email' name='email' placeholder='Email' />
+            <Field type='email' name='email' placeholder='Email'/>
             <br/>
             {touched.password && errors.password && <p>{errors.password}</p>}
-            <Field type='password' name='password' placeholder='Password' />
+            <Field type='password' name='password' placeholder='Password'/>
             <br/>
             <label htmlFor='terms of service'>
                 <Field type="checkbox" name="tos" checked={values.tos} />
