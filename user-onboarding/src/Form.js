@@ -1,12 +1,32 @@
 import React, {useState} from 'react';
 import { withFormik, Form, Field} from "formik";
 import * as Yup from "yup";
+import User from './User'
 
 const UserForm = ({values, errors, touched, isSubmitting}) => {
     let [users, setUsers] = useState([]);
+    const handleData = (event) => {
+        event.preventDefault();
+        if (values.tos) {
+            fetch('https://reqres.in/api/users', {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(values)
+            })
+                .then(res => res.json())
+                    .then(data => {
+                        //console.log(data);
+                        setUsers(users.concat([data]));
+                    });
+        } else {
+            console.log('You need to read the Terms of Service first.');
+        }
+    }
     return (
-        <Form>
-            <p>{users.length ? users[0].name : null}</p>
+        <Form onSubmit={(event) => handleData(event)}>
+            <p>{users.length ? users.map(user => <User name={user.name} email={user.email}/>) : null}</p>
             {touched.name && errors.name && <p>{errors.name}</p>}
             <Field type='text' name='name' placeholder='Name' />
             <br/>
@@ -40,7 +60,8 @@ const FormikUserForm = withFormik({
         email: Yup.string().email('You need a valid email.').required('You need an email.'),
         password: Yup.string().min(9, "9 character minimum.").required('You need a password.')
     }),
-    handleSubmit(values, {resetForm, setErrors, setSubmitting}) {
+    /*
+    handleSubmit(values, {resetForm, setErrors, setSubmitting, setStatus}) {
         if (values.tos) {
             fetch('https://reqres.in/api/users', {
                 method: 'POST',
@@ -51,8 +72,7 @@ const FormikUserForm = withFormik({
             })
                 .then(res => res.json())
                     .then(data => {
-                        //console.log(data);
-                        setUsers(users.concat([data]));
+                        console.log(data);
                         resetForm();
                         setSubmitting(false);
                     });
@@ -61,6 +81,7 @@ const FormikUserForm = withFormik({
             setSubmitting(false);
         }
     }
+    */
 })(UserForm);
 
 export default FormikUserForm;
